@@ -5,11 +5,10 @@
 
 ---
 
-![ADD ANIMATION HERE COMING SOON](ant_colony_phibe.gif)
+![Ant colony transporting a cookie](ant_colony_obstacle_solved.gif)
 
 What you are watching is not hand-coded behaviour. The ants have **no explicit rules** telling them to surround the cookie, attach to it, or pull in the same direction. All of this emerges from a single optimal policy — learned automatically by solving a **Mean-Field Control problem** over the joint distribution of the entire colony.
 
-If you work in RL, multi-agent systems, or stochastic control, there is something here for you. If you are just here because watching ants carry a cookie is satisfying — also valid.
 
 ---
 
@@ -19,7 +18,7 @@ Collective transport in ant colonies is one of the most striking examples of dec
 
 This has motivated a long line of modelling work, from stochastic foraging models (Prabhakar et al., *PLOS Computational Biology*, 2012) to mean-field PDE approaches for robotic swarms (Zheng et al., *IEEE Transactions on Automatic Control*, 2021). Mean-field partial differential equations can model a swarm and control its mean-field density over a bounded spatial domain, with control laws that act locally on individual robots to guide their global distribution. 
 
-Our work is motivated by the same question — **can a principled mathematical framework reproduce this emergent collective intelligence?** — but attacks it from a different angle: **McKean-Vlasov control**.
+Our work is motivated by the same question — **can a principled mathematical framework reproduce this emergent collective intelligence?** — but attacks it from a different angle: **McKean-Vlasov control**. More importantly, **can the optimal strategy be learned from discrete data alone (reinforce learning)?**
 
 ---
 
@@ -46,10 +45,15 @@ The key modelling choice: $N$ ants evolve as **exchangeable particles** coupled 
 
 **Ant position** $b_x$ (the most interesting piece):
 
-$$b_x(s,\mu,a) = \underbrace{u}_{\text{locomotion}} - \underbrace{\nabla(W_{\text{rep}} * \rho)(x)}_{\text{soft repulsion}} + \underbrace{\beta_{\text{seek}}(1-\Lambda(z))\,\psi(\|x-y\|)\,\frac{y-x}{\|y-x\|+\varepsilon}}_{\text{detached: approach cookie}} - \underbrace{\beta_{\text{hold}}\,\Lambda(z)(x-y)}_{\text{attached: stay near cookie}} + \underbrace{\beta_{\text{pull}}\,\Lambda(z)\,\frac{B-y}{\|B-y\|+\varepsilon}}_{\text{attached: lean toward target}}$$
+$$b_x(s,\mu,a) = \underbrace{u}_{\text{locomotion}} - \underbrace{\nabla(W_{\text{rep}} * \rho)(x)}_{\text{soft repulsion}} + \underbrace{\beta_{\text{seek}}(1-\Lambda(z))\,\psi(\|x-y\|)\,\frac{y-x}{\|y-x\|+\varepsilon}}_{\text{detached: approach cookie}} - \underbrace{\beta_{\text{hold}}\,\Lambda(z)(x-y)}_{\text{attached: stay near cookie}} + \underbrace{\beta_{\text{pull}}\,\Lambda(z)\,\frac{B-y}{\|B-y\|+\varepsilon}}_{\text{attached: lean toward target}}+F_{\text{rock}}(x)$$
 
-where $\psi(d) = e^{-d^2/\ell^2}$ is a proximity weight and $B \in \mathbb{R}^2$ is the target.
-Five forces act on each ant simultaneously: voluntary locomotion, soft crowd repulsion (via the population marginal $\rho$), cookie attraction (only when detached), elastic attachment spring (only when attached), and a forward lean toward the target (only when attached).
+where $\psi(d) = e^{-d^2/\ell^2}$ is a proximity weight and $B \in \mathbb{R}^2$ is the target. The rock in the animation is not a hard constraint — it is a smooth Gaussian repulsive potential:
+
+$$F_{\text{rock}}(x) = \frac{A_{\text{rock}}}{\sigma_{\text{rock}}^2}(x - x_{\text{rock}})\,\exp\!\left(-\frac{\|x-x_{\text{rock}}\|^2}{2\sigma_{\text{rock}}^2}\right)$$
+
+This keeps everything $C^\infty$ and compatible with the regularity assumptions of the theory, while producing a realistic detour around the obstacle.
+
+Six forces act on each ant simultaneously: voluntary locomotion, soft crowd repulsion (via the population marginal $\rho$), cookie attraction (only when detached), elastic attachment spring (only when attached), a forward lean toward the target (only when attached), and a rock with a repulsive potential. 
 
 **Attachment dynamics** $b_z$ — an Ornstein-Uhlenbeck relaxation:
 
@@ -59,7 +63,7 @@ Attachment grows when the ant is close to the cookie **and** applies effort $\et
 
 **Cookie dynamics** $b_y$ — overdamped (high-friction) transport:
 
-$$b_y(\mu) = \frac{1}{\gamma_c}\,\mathcal{F}(\mu), \qquad \mathcal{F}(\mu) = F_0 \int \Lambda(z)\,\psi(\|x-y\|)\,\frac{x-y}{\|x-y\|+\varepsilon}\,\mu(dx,dz,dy)$$
+$$b_y(\mu) = \frac{1}{\gamma_c}\,\mathcal{F}(\mu)+F_{\text{rock}}(x), \qquad \mathcal{F}(\mu) = F_0 \int \Lambda(z)\,\psi(\|x-y\|)\,\frac{x-y}{\|x-y\|+\varepsilon}\,\mu(dx,dz,dy)$$
 
 The cookie moves only through the **mean-field force** $\mathcal{F}(\mu)$: the population-averaged traction from all attached ants near the cookie. Notice $b_y$ depends on $\mu$ but **not on any individual state $s$** — this is exactly the McKean-Vlasov structure.
 
@@ -93,15 +97,6 @@ The five penalties are: get the cookie to $B$, don't waste energy on locomotion,
 | $\beta = 0.2$ | discount | time preference |
 
 
-## Obstacle avoidance
-
-The rock in the animation is not a hard constraint — it is a smooth Gaussian repulsive potential added to $b_x$ and $b_y$:
-
-$$F_{\text{rock}}(x) = \frac{A_{\text{rock}}}{\sigma_{\text{rock}}^2}(x - x_{\text{rock}})\,\exp\!\left(-\frac{\|x-x_{\text{rock}}\|^2}{2\sigma_{\text{rock}}^2}\right)$$
-
-This keeps everything $C^\infty$ and compatible with the regularity assumptions of the theory, while producing a realistic detour around the obstacle.
-
-
 
 ## The algorithm:
 
@@ -110,6 +105,7 @@ This keeps everything $C^\infty$ and compatible with the regularity assumptions 
 
 ## Code structure
 
+> *coming soon*
 
 
 ## References
