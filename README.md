@@ -1,4 +1,4 @@
-# 🐜 Ant Colony Cookie Transport — Mean-Field Control meets Collective Intelligence
+# 🐜 Ant Colony Cookie Transport — Mean-Field Control for Collective Intelligence
 
 > *45 ants. One cookie. One target. No central coordinator.*
 > *Just math, noise, and emergent cooperation.*
