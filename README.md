@@ -98,10 +98,10 @@ The five penalties are: get the cookie to $B$, don't waste energy on locomotion,
 
 
 
-## The algorithm:
+## The algorithm
 
-> **📄 Paper & full algorithm:** *coming soon*
-
+> **📄 The algorithm and theoretical framework are introduced in:**  
+> [Mean-Field PhiBE: Continuous-Time Mean-Field Reinforcement Learning from Discrete-Time Data](https://arxiv.org/abs/2606.26498)
 
 ## Code structure
 
